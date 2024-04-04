@@ -56,7 +56,7 @@ class ToDoDBStore:
         collection = db[collection_name]
         return collection.find_one({"id": task_id})
 
-    def get_documents_by_query(self, db_name: str, collection_name: str, query: dict):
+    def get_document_by_query(self, db_name: str, collection_name: str, query: dict):
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.find(query)
