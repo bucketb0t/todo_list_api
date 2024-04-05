@@ -1,5 +1,6 @@
-from utils.db_store import ToDoDBStore
 import pytest
+
+from utils.db_store import ToDoDBStore
 
 
 class TestToDoDBStore:
