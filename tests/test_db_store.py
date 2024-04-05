@@ -21,6 +21,7 @@ class TestToDoDBStore:
             "id": 1,
             "title": "AnotherPytestFixture",
             "description": "SecondInstance",
+            "completed": True
         }
 
         return [todo_pytest_0, todo_pytest_1]
@@ -102,3 +103,20 @@ class TestToDoDBStore:
                 assert document[key] == value
 
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+    def test_update_document_by_id(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+        # Add documents to the collection
+        for document_fix in todo_document_fix:
+            mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
+
+        # Update a document with id 1
+        result = mongo_driver.update_document_by_id("todo_list_db", "todo_list_collection", 1,
+                                                    {"title": "UpdatedAnotherPytestFixture"})
+
+        assert result is not None
+        assert result.modified_count == 1
+        assert mongo_driver.get_document_by_id("todo_list_db", "todo_list_collection", 1)[
+                   "title"] == "UpdatedAnotherPytestFixture"

@@ -27,7 +27,7 @@ class ToDoDBStore:
         test_document_id = test_todo_document['id']
         result = self.get_all_documents(db_name, db_collection)
         result = self.get_document_by_id(db_name, db_collection, test_document_id)
-        result = self.get_documents_by_query(db_name, db_collection, {"id": test_document_id})
+        result = self.get_document_by_query(db_name, db_collection, {"id": test_document_id})
         result = self.update_document_by_id(db_name, db_collection, test_document_id, test_todo_update_document)
         result = self.delete_document_by_id(db_name, db_collection, test_document_id)
         result = self.delete_all_documents(db_name, db_collection, {"id": test_document_id})
@@ -64,8 +64,8 @@ class ToDoDBStore:
     def update_document_by_id(self, db_name: str, collection_name: str, task_id: int, document: dict):
         db = self.client[db_name]
         collection = db[collection_name]
-        collection.update_one({"_id": ObjectId(str(task_id))}, {"$set": document})
-        return document
+        result = collection.update_one({"id": task_id}, {"$set": document})
+        return result
 
     def delete_document_by_id(self, db_name: str, collection_name: str, task_id: int):
         db = self.client[db_name]
