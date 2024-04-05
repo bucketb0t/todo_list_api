@@ -1,6 +1,9 @@
 import pymongo
+
+from typing import Mapping, Any
 from pymongo import MongoClient
-from bson import ObjectId
+from pymongo.cursor import Cursor
+from pymongo.results import UpdateResult, InsertOneResult, DeleteResult
 
 
 class ToDoDBStore:
@@ -40,39 +43,38 @@ class ToDoDBStore:
         else:
             return collection.find_one({}, sort=[("id", pymongo.ASCENDING)])["id"] + 1
 
-    def add_document(self, db_name: str, collection_name: str, document: dict):
+    def add_document(self, db_name: str, collection_name: str, document: dict) -> InsertOneResult:
         db = self.client[db_name]
         collection = db[collection_name]
         document['id'] = self.get_next_id(db_name, collection_name)
         return collection.insert_one(document)
 
-    def get_all_documents(self, db_name: str, collection_name: str):
+    def get_all_documents(self, db_name: str, collection_name: str) -> list:
         db = self.client[db_name]
         collection = db[collection_name]
         return list(collection.find())
 
-    def get_document_by_id(self, db_name: str, collection_name: str, task_id: int):
+    def get_document_by_id(self, db_name: str, collection_name: str, task_id: int) -> Mapping[str, Any] | None:
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.find_one({"id": task_id})
 
-    def get_document_by_query(self, db_name: str, collection_name: str, query: dict):
+    def get_document_by_query(self, db_name: str, collection_name: str, query: dict) -> Cursor[Mapping[str, Any] | Any]:
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.find(query)
 
-    def update_document_by_id(self, db_name: str, collection_name: str, task_id: int, document: dict):
+    def update_document_by_id(self, db_name: str, collection_name: str, task_id: int, document: dict) -> UpdateResult:
         db = self.client[db_name]
         collection = db[collection_name]
-        result = collection.update_one({"id": task_id}, {"$set": document})
-        return result
+        return collection.update_one({"id": task_id}, {"$set": document})
 
-    def delete_document_by_id(self, db_name: str, collection_name: str, task_id: int):
+    def delete_document_by_id(self, db_name: str, collection_name: str, task_id: int) -> DeleteResult:
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.delete_one({"id": task_id})
 
-    def delete_all_documents(self, db_name: str, collection_name: str, query: dict):
+    def delete_all_documents(self, db_name: str, collection_name: str, query: dict) -> DeleteResult:
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.delete_many(query)

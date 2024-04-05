@@ -27,9 +27,10 @@ class TestToDoDBStore:
         return [todo_pytest_0, todo_pytest_1]
 
     def test_add_todo(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
-        inserted_ids = []
 
+        inserted_ids = []
         # Add each document in todo_document_fix
         for document_fix in todo_document_fix:
             result = mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
@@ -41,6 +42,7 @@ class TestToDoDBStore:
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
     def test_get_all_documents(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
         # Add all documents to the database
@@ -63,6 +65,7 @@ class TestToDoDBStore:
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
     def test_get_document_by_id(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
         # Insert test documents
@@ -81,13 +84,14 @@ class TestToDoDBStore:
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
     def test_get_document_by_query(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
+        # Add documents to the collection
         for document_fix in todo_document_fix:
             mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
 
         test_query = {"id": 1}
-
         # Retrieve document by query
         result = mongo_driver.get_document_by_query("todo_list_db", "todo_list_collection", test_query)
 
@@ -118,5 +122,48 @@ class TestToDoDBStore:
 
         assert result is not None
         assert result.modified_count == 1
-        assert mongo_driver.get_document_by_id("todo_list_db", "todo_list_collection", 1)[
-                   "title"] == "UpdatedAnotherPytestFixture"
+
+        result = mongo_driver.get_document_by_id("todo_list_db", "todo_list_collection", 1)[
+            "title"]
+        assert result == "UpdatedAnotherPytestFixture"
+
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+    def test_delete_document_by_id(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+        # Add documents to the collection
+        for document_fix in todo_document_fix:
+            mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
+
+        result = mongo_driver.delete_document_by_id("todo_list_db", "todo_list_collection", 1)
+
+        assert result is not None
+        assert result.deleted_count == 1
+
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+    def test_delete_all_documents(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+        # Add documents to the collection
+        for document_fix in todo_document_fix:
+            mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
+
+        # Retrieve all documents from the collection
+        result = mongo_driver.get_all_documents("todo_list_db", "todo_list_collection")
+
+        # Count the number of documents matching the document_fix criteria
+        counter = 0
+        for document in result:
+            if all(document[key] == value for key, value in todo_document_fix[counter].items()):
+                counter += 1
+
+        # Delete all documents from the collection
+        result = mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+        # Assert the deletion operation
+        assert result is not None
+        assert result.deleted_count == counter
