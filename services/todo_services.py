@@ -1,3 +1,6 @@
+from bson import ObjectId
+from pymongo import collection
+
 from utils.db_store import ToDoDBStore
 from models.todo_model import ToDoModel
 
@@ -26,11 +29,10 @@ class ToDoServices:
             return {"error": str(e)}
 
     def get_todo_by_id(self, todo_id: int):
+        print(f"todo_id {todo_id}")
         try:
             todo = self.db.get_document_by_id("todo_list_db", "todo_list_collection", todo_id)
-            print(f"ToDo successfully retrieved: {todo}")
-            return ToDoModel(**todo)
-
+            return todo  # Return the entire document
         except Exception as e:
             return {"error": str(e)}
 
