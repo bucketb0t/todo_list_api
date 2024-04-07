@@ -64,7 +64,6 @@ class TestToDoServices:
         todo_item_good["id"] = todo_model_test.id
         retrieved_todo = todo_services_test.get_todo_by_id(todo_model_test.id)
 
-        print(f"Retrieved Todo: {retrieved_todo}")
         # Ensure the retrieved todo item is not None
         assert retrieved_todo is not None, "Retrieved todo item is None"
 
@@ -75,3 +74,5 @@ class TestToDoServices:
         assert retrieved_todo.get("title") == todo_model_test.title, "Incorrect todo title"
         assert retrieved_todo.get("description") == todo_model_test.description, "Incorrect todo description"
         assert retrieved_todo.get("completed") == todo_model_test.completed, "Incorrect todo completion status"
+
+        todo_services_test.delete_all_todos(todo_item_good)
