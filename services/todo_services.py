@@ -29,10 +29,11 @@ class ToDoServices:
             return {"error": str(e)}
 
     def get_todo_by_id(self, todo_id: int):
-        print(f"todo_id {todo_id}")
         try:
             todo = self.db.get_document_by_id("todo_list_db", "todo_list_collection", todo_id)
-            return todo  # Return the entire document
+            if todo is None:
+                raise ValueError(f"Document with id {todo_id} not found.")
+            return todo
         except Exception as e:
             return {"error": str(e)}
 
