@@ -125,23 +125,31 @@ class TestToDoServices:
         todo_services_test.delete_all_todos(todo_item_good)
 
     def test_get_todo_by_query_bad(self, todo_services_test, todo_db_store, todo_item_good, todo_item_bad):
-        # Clean up any existing documents with the good and bad descriptions
+
         todo_services_test.delete_all_todos(todo_item_good)
         todo_services_test.delete_all_todos(todo_item_bad)
 
-        # Add a bad document to the database
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
-
-        # Retrieve todo items by query, which should include the bad document
         result = todo_services_test.get_todo_by_query({"id": 0})
 
-        # Ensure that the result is not None
         assert result is not None, "Retrieved todo item list is None"
-
-        # Check each todo item in the result list for the presence of an error
         for todo_item in result:
             assert todo_item.error is not None, "Expected error in todo item"
 
-        # Clean up created documents
-        todo_services_test.delete_all_todos(todo_item_good)
         todo_services_test.delete_all_todos(todo_item_bad)
+
+    def test_update_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test, todo_item_update):
+        # Clean up any existing todos
+        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.add_todo(todo_model_test)
+
+        todo_item_good["id"] += 1
+
+        result = todo_services_test.update_todo_by_id(todo_item_good.get("id"), todo_item_update)
+        result = todo_services_test.get_todo_by_id(todo_item_good.get("id"))
+
+        assert result.get("error") is None, f"Error occurred: {result.get('error')}"
+        for key, value in todo_item_update.items():
+            assert result.get(key) == value, f"Field '{key}' does not correspond after update"
+
+        todo_services_test.delete_all_todos(todo_item_update)
