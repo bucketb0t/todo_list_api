@@ -178,3 +178,13 @@ class TestToDoServices:
         assert result == {"result": f"Documents deleted: 1"}
 
         todo_services_test.delete_all_todos(todo_item_good)
+
+    def test_delete_todo_by_id_bad(self, todo_services_test, todo_item_bad, todo_model_test, todo_db_store):
+
+        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
+
+        result = todo_services_test.delete_todo_by_id(todo_model_test)
+        assert result.get("error") is not None
+
+        todo_services_test.delete_all_todos(todo_item_bad)
