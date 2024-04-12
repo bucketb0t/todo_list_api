@@ -124,17 +124,16 @@ class TestToDoServices:
 
         todo_services_test.delete_all_todos(todo_item_good)
 
-    def test_get_todo_by_query_bad(self, todo_services_test, todo_db_store, todo_item_good, todo_item_bad):
+    def test_get_todo_by_query_bad(self, todo_services_test, todo_db_store, todo_item_bad):
 
-        todo_services_test.delete_all_todos(todo_item_good)
         todo_services_test.delete_all_todos(todo_item_bad)
-
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
+
         result = todo_services_test.get_todo_by_query({"id": 0})
 
         assert result is not None, "Retrieved todo item list is None"
         for todo_item in result:
-            assert todo_item.error is not None, "Expected error in todo item"
+            assert todo_item.get("error") is not None, "Expected error in todo item"
 
         todo_services_test.delete_all_todos(todo_item_bad)
 
@@ -148,8 +147,22 @@ class TestToDoServices:
         result = todo_services_test.update_todo_by_id(todo_item_good.get("id"), todo_item_update)
         result = todo_services_test.get_todo_by_id(todo_item_good.get("id"))
 
-        assert result.get("error") is None, f"Error occurred: {result.get('error')}"
+        assert result.get("error") is None
         for key, value in todo_item_update.items():
-            assert result.get(key) == value, f"Field '{key}' does not correspond after update"
+            assert result.get(key) == value
 
         todo_services_test.delete_all_todos(todo_item_update)
+
+    def test_update_todo_by_id_bad(self, todo_services_test, todo_db_store, todo_item_bad, todo_item_update):
+        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
+
+        result = todo_services_test.update_todo_by_id(todo_item_bad.get("id"), todo_item_update)
+        result = todo_services_test.get_todo_by_query({"id": 0})
+
+        assert result is not None, "Retrieved todo item list is None"
+        for todo_item in result:
+            assert todo_item.get("error") is not None, "Expected error in todo item"
+
+        todo_services_test.delete_all_todos(todo_item_bad)
+
