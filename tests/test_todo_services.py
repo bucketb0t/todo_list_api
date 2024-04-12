@@ -138,7 +138,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos(todo_item_bad)
 
     def test_update_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test, todo_item_update):
-        # Clean up any existing todos
+
         todo_services_test.delete_all_todos(todo_item_good)
         todo_services_test.add_todo(todo_model_test)
 
@@ -166,3 +166,15 @@ class TestToDoServices:
 
         todo_services_test.delete_all_todos(todo_item_bad)
 
+    def test_delete_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test):
+
+        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.add_todo(todo_model_test)
+
+        todo_model_test.id += 1
+        todo_item_good["id"] = todo_model_test.id
+
+        result = todo_services_test.delete_todo_by_id(todo_item_good.get("id"))
+        assert result == {"result": f"Documents deleted: 1"}
+
+        todo_services_test.delete_all_todos(todo_item_good)
