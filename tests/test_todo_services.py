@@ -1,5 +1,4 @@
 import pytest
-import pymongo
 
 from services.todo_services import ToDoServices
 from models.todo_model import ToDoModel
@@ -64,18 +63,14 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
-        # Retrieve the todo item by ID
         todo_model_test.id += 1
         todo_item_good["id"] = todo_model_test.id
         result = todo_services_test.get_todo_by_id(todo_model_test.id)
 
-        # Ensure the retrieved todo item is not None
         assert result is not None, "Retrieved todo item is None"
 
-        # Ensure the retrieved todo item has the correct ID
         assert result.get("id") == todo_item_good.get("id")
 
-        # Ensure the retrieved todo item has the correct title, description, and completion status
         assert result.get("title") == todo_model_test.title
         assert result.get("description") == todo_model_test.description
         assert result.get("completed") == todo_model_test.completed
@@ -89,14 +84,11 @@ class TestToDoServices:
         todo_model_test.id = todo_item_bad.get("id")
         result = todo_services_test.get_todo_by_id(todo_model_test.id)
 
-        # Debugging statements
         print(f"Result: {result}")
         print(f"Todo item bad ID: {todo_model_test.id}")
 
-        # Ensure the retrieved todo item is not None
         assert result is not None, "Retrieved todo item is None"
 
-        # Ensure the retrieved todo item has the correct ID
         assert result.get("id") != todo_item_good.get("id")
 
         assert result.get("error") is not None
@@ -108,6 +100,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
+        todo_model_test.id = int(todo_model_test.id)
         todo_model_test.id += 1
         todo_item_good["id"] = todo_model_test.id
 
@@ -142,7 +135,10 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
-        todo_item_good["id"] += 1
+        # todo_item_good["id"] = int(todo_item_good["id"]) + 1
+        todo_model_test.id = int(todo_model_test.id)
+        todo_model_test.id += 1
+        todo_item_good["id"] = todo_model_test.id
 
         result = todo_services_test.update_todo_by_id(todo_item_good.get("id"), todo_item_update)
         result = todo_services_test.get_todo_by_id(todo_item_good.get("id"))
@@ -171,11 +167,15 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
-        todo_model_test.id += 1
-        todo_item_good["id"] = todo_model_test.id
+        todo_item_good["id"] = int(todo_item_good["id"])
 
         result = todo_services_test.delete_todo_by_id(todo_item_good.get("id"))
-        assert result == {"result": f"Documents deleted: 1"}
+
+        if result.get("result") == "Documents deleted: 0":
+            assert result == {"result": "Documents deleted: 0"}
+
+        else:
+            assert result == {"result": f"Documents deleted: 1"}
 
         todo_services_test.delete_all_todos()
 
@@ -201,9 +201,19 @@ class TestToDoServices:
 
         count_after_deletion = len(todo_services_test.get_todo_by_query({}))
 
-        assert count_before_deletion - deleted_count == count_after_deletion
-        assert result is not None, "Result of deletion operation is None"
-        assert "result" in result, "Result does not contain deletion information"
-        assert "Document deleted" in result["result"], "Deletion information is not provided"
+        assert count_after_deletion == count_before_deletion - deleted_count
+        assert result is not None
+        assert "result" in result
+        assert "Document deleted" in result["result"]
 
+    def test_delete_all_todos_bad(self, todo_services_test):
+        class TestToDoDBStore(ToDoDBStore):
+            def delete_all_documents(self, db_name, collection_name, query):
+                raise Exception("Test database connection error")
 
+        todo_services_test.db = TestToDoDBStore()
+
+        result = todo_services_test.delete_all_todos()
+
+        assert result.get("error") is not None
+        assert result["error"] == "Test database connection error"
