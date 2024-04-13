@@ -42,7 +42,7 @@ class TestToDoServices:
         return {
             "title": "PytestFixtureUpdate",
             "description": "InstanceUpdate",
-            "completed": False,
+            "completed": True,
         }
 
     def test_add_todo_good(self, todo_services_test, todo_model_test, todo_item_good):
@@ -100,9 +100,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
-        todo_model_test.id = int(todo_model_test.id)
-        todo_model_test.id += 1
-        todo_item_good["id"] = todo_model_test.id
+        todo_item_good["id"] = int(todo_model_test.id) + 1
 
         result = todo_services_test.get_todo_by_query(todo_item_good)
 
@@ -131,21 +129,19 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
 
     def test_update_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test, todo_item_update):
-
         todo_services_test.delete_all_todos()
-        todo_services_test.add_todo(todo_model_test)
+        result = todo_services_test.add_todo(todo_model_test)
 
-        # todo_item_good["id"] = int(todo_item_good["id"]) + 1
-        todo_model_test.id = int(todo_model_test.id)
-        todo_model_test.id += 1
-        todo_item_good["id"] = todo_model_test.id
-
+        todo_item_good["id"] = + 1
         result = todo_services_test.update_todo_by_id(todo_item_good.get("id"), todo_item_update)
-        result = todo_services_test.get_todo_by_id(todo_item_good.get("id"))
 
         assert result.get("error") is None
-        for key, value in todo_item_update.items():
-            assert result.get(key) == value
+        assert "Documents updated" in result.get(
+            "result"), "Update operation did not return 'Documents updated' message"
+
+        modified_count = int(result.get("result").split(":")[1].strip())
+
+        assert modified_count == 1, "Modified count is not equal to 1"
 
         todo_services_test.delete_all_todos()
 

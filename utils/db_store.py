@@ -40,7 +40,9 @@ class ToDoDBStore:
         if collection.count_documents({}) == 0:
             return 1
         else:
-            return collection.find_one({}, sort=[("id", pymongo.ASCENDING)])["id"] + 1
+            max_id_doc = collection.find_one({}, sort=[("id", pymongo.DESCENDING)])
+            max_id = max_id_doc["id"] if max_id_doc else 0
+            return max_id + 1
 
     def add_document(self, db_name: str, collection_name: str, document: dict) -> InsertOneResult:
         db = self.client[db_name]
