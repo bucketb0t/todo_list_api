@@ -62,9 +62,9 @@ class ToDoServices:
         except Exception as e:
             return {"error": f"{e}"}
 
-    def delete_all_todos(self, todo_query: dict):
+    def delete_all_todos(self):
         try:
-            todos = self.db.delete_all_documents("todo_list_db", "todo_list_collection", todo_query)
+            todos = self.db.delete_all_documents("todo_list_db", "todo_list_collection", {})
             return {"result": f"Document deleted: {todos.deleted_count}"}
         except Exception as e:
             return {"error": f"{e}"}

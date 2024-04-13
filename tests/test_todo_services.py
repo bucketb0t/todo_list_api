@@ -47,21 +47,21 @@ class TestToDoServices:
         }
 
     def test_add_todo_good(self, todo_services_test, todo_model_test, todo_item_good):
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         result = todo_services_test.add_todo(todo_model_test)
         assert result.get("oid") is not None
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_add_todo_bad(self, todo_services_test, todo_item_good):
-        todo_services_test.delete_all_todos(todo_item_good)
-        result = todo_services_test.add_todo(todo_item_good)
+        todo_services_test.delete_all_todos()
+        result = todo_services_test.add_todo()
         assert result.get("error") is not None
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_get_todo_by_id(self, todo_services_test, todo_model_test, todo_item_good):
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
         # Retrieve the todo item by ID
@@ -80,10 +80,10 @@ class TestToDoServices:
         assert result.get("description") == todo_model_test.description
         assert result.get("completed") == todo_model_test.completed
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_get_todo_by_id_bad(self, todo_services_test, todo_model_test, todo_item_good, todo_item_bad):
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
         todo_model_test.id = todo_item_bad.get("id")
@@ -101,11 +101,11 @@ class TestToDoServices:
 
         assert result.get("error") is not None
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_get_todo_by_query(self, todo_services_test, todo_model_test, todo_item_good):
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
         todo_model_test.id += 1
@@ -122,11 +122,11 @@ class TestToDoServices:
             for todo in result:
                 assert getattr(todo, key) == value
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_get_todo_by_query_bad(self, todo_services_test, todo_db_store, todo_item_bad):
 
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
         result = todo_services_test.get_todo_by_query({"id": 0})
@@ -135,11 +135,11 @@ class TestToDoServices:
         for todo_item in result:
             assert todo_item.get("error") is not None, "Expected error in todo item"
 
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
 
     def test_update_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test, todo_item_update):
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
         todo_item_good["id"] += 1
@@ -151,10 +151,10 @@ class TestToDoServices:
         for key, value in todo_item_update.items():
             assert result.get(key) == value
 
-        todo_services_test.delete_all_todos(todo_item_update)
+        todo_services_test.delete_all_todos()
 
     def test_update_todo_by_id_bad(self, todo_services_test, todo_db_store, todo_item_bad, todo_item_update):
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
         result = todo_services_test.update_todo_by_id(todo_item_bad.get("id"), todo_item_update)
@@ -164,11 +164,11 @@ class TestToDoServices:
         for todo_item in result:
             assert todo_item.get("error") is not None, "Expected error in todo item"
 
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
 
     def test_delete_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test):
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
         todo_model_test.id += 1
@@ -177,14 +177,33 @@ class TestToDoServices:
         result = todo_services_test.delete_todo_by_id(todo_item_good.get("id"))
         assert result == {"result": f"Documents deleted: 1"}
 
-        todo_services_test.delete_all_todos(todo_item_good)
+        todo_services_test.delete_all_todos()
 
     def test_delete_todo_by_id_bad(self, todo_services_test, todo_item_bad, todo_model_test, todo_db_store):
 
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
-        result = todo_services_test.delete_todo_by_id(todo_model_test)
+        result = todo_services_test.delete_todo_by_id()
         assert result.get("error") is not None
 
-        todo_services_test.delete_all_todos(todo_item_bad)
+        todo_services_test.delete_all_todos()
+
+    def test_delete_all_todos(self, todo_services_test, todo_item_good, todo_model_test):
+
+        todo_services_test.delete_all_todos()
+        todo_services_test.add_todo(todo_model_test)
+
+        count_before_deletion = len(todo_services_test.get_todo_by_query({}))
+
+        result = todo_services_test.delete_all_todos()
+        deleted_count = int(result["result"].split(":")[1].strip())
+
+        count_after_deletion = len(todo_services_test.get_todo_by_query({}))
+
+        assert count_before_deletion - deleted_count == count_after_deletion
+        assert result is not None, "Result of deletion operation is None"
+        assert "result" in result, "Result does not contain deletion information"
+        assert "Document deleted" in result["result"], "Deletion information is not provided"
+
+
