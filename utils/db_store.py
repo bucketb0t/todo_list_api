@@ -25,14 +25,14 @@ class ToDoDBStore:
             "completed": True
         }
 
-        result = self.add_document(db_name, db_collection, test_todo_document)
+        self.add_document(db_name, db_collection, test_todo_document)
         test_document_id = test_todo_document['id']
-        result = self.get_all_documents(db_name, db_collection)
-        result = self.get_document_by_id(db_name, db_collection, test_document_id)
-        result = self.get_document_by_query(db_name, db_collection, {"id": test_document_id})
-        result = self.update_document_by_id(db_name, db_collection, test_document_id, test_todo_document_update)
-        result = self.delete_document_by_id(db_name, db_collection, test_document_id)
-        result = self.delete_all_documents(db_name, db_collection, {"id": test_document_id})
+        self.get_all_documents(db_name, db_collection)
+        self.get_document_by_id(db_name, db_collection, test_document_id)
+        self.get_document_by_query(db_name, db_collection, {"id": test_document_id})
+        self.update_document_by_id(db_name, db_collection, test_document_id, test_todo_document_update)
+        self.delete_document_by_id(db_name, db_collection, test_document_id)
+        self.delete_all_documents(db_name, db_collection, {"id": test_document_id})
 
     def get_next_id(self, db_name, db_collection):
         collection = self.client[db_name][db_collection]

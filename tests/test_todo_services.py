@@ -130,7 +130,7 @@ class TestToDoServices:
 
     def test_update_todo_by_id(self, todo_services_test, todo_item_good, todo_model_test, todo_item_update):
         todo_services_test.delete_all_todos()
-        result = todo_services_test.add_todo(todo_model_test)
+        todo_services_test.add_todo(todo_model_test)
 
         todo_item_good["id"] = + 1
         result = todo_services_test.update_todo_by_id(todo_item_good.get("id"), todo_item_update)
@@ -149,7 +149,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
-        result = todo_services_test.update_todo_by_id(todo_item_bad.get("id"), todo_item_update)
+        todo_services_test.update_todo_by_id(todo_item_bad.get("id"), todo_item_update)
         result = todo_services_test.get_todo_by_query({"id": 0})
 
         assert result is not None, "Retrieved todo item list is None"

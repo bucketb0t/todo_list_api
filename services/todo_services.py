@@ -1,6 +1,3 @@
-from bson import ObjectId
-from pymongo import collection
-
 from utils.db_store import ToDoDBStore
 from models.todo_model import ToDoModel
 
