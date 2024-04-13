@@ -42,7 +42,7 @@ class TestToDoServices:
         return {
             "title": "PytestFixtureUpdate",
             "description": "InstanceUpdate",
-            "completed": True,
+            "completed": True
         }
 
     def test_add_todo_good(self, todo_services_test, todo_model_test, todo_item_good):
