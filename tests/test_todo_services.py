@@ -55,7 +55,7 @@ class TestToDoServices:
 
     def test_add_todo_bad(self, todo_services_test, todo_item_good):
         todo_services_test.delete_all_todos()
-        result = todo_services_test.add_todo()
+        result = todo_services_test.add_todo(todo_item_good)
         assert result.get("error") is not None
 
         todo_services_test.delete_all_todos()
@@ -184,7 +184,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
-        result = todo_services_test.delete_todo_by_id()
+        result = todo_services_test.delete_todo_by_id(todo_model_test)
         assert result.get("error") is not None
 
         todo_services_test.delete_all_todos()
