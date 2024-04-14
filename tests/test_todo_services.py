@@ -85,7 +85,6 @@ class TestToDoServices:
 
         todo_services_test.delete_all_todos()
 
-
     def test_get_todo_by_id(self, todo_services_test, todo_model_test, todo_item_good):
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
