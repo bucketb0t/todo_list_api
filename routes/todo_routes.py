@@ -8,21 +8,22 @@ from services.todo_services import ToDoServices
 router = APIRouter()
 todo_services = ToDoServices()
 
-"""
-Define a route handler for handling HTTP POST requests at the root URL ("/") with a response model of Dict[str, Any].
 
-Parameters:
-- todo_data (dict): The data representing the todo item to be created.
-
-Returns:
-- dict: The result of the todo creation operation.
-
-Raises:
-- HTTPException: If an error occurs during parsing or processing, an HTTPException with status code 400 and the error detail will be raised.
-"""
 
 
 async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
+    """
+    Define a route handler for handling HTTP POST requests at the root URL ("/") with a response model of Dict[str, Any].
+
+    Parameters:
+    - todo_data (dict): The data representing the todo item to be created.
+
+    Returns:
+    - dict: The result of the todo creation operation.
+
+    Raises:
+    - HTTPException: If an error occurs during parsing or processing, an HTTPException with status code 400 and the error detail will be raised.
+    """
     try:
         # Attempt to parse the todo_data dictionary into an instance of the ToDoModel class
         todo_model = parse_obj_as(ToDoModel, todo_data)

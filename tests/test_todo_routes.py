@@ -71,3 +71,11 @@ class TestToDoListRoutes:
         assert len(response.json()) == 1
         assert any(item == todo_list_good for item in response.json())
         todo_list_routes.delete("/")
+
+    def test_get_todo_bad(self, todo_list_routes, todo_list_good):
+        # Clean up any existing todos
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+        response = todo_list_routes.get("/non_existent_route")
+        assert response.status_code == 404
+        todo_list_routes.delete("/")
