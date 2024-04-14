@@ -63,8 +63,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
 
-        todo_model_test.id += 1
-        todo_item_good["id"] = todo_model_test.id
+        todo_item_good["id"] = int(todo_model_test.id) + 1
         result = todo_services_test.get_todo_by_id(todo_model_test.id)
 
         assert result is not None, "Retrieved todo item is None"

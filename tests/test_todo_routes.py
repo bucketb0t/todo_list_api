@@ -6,6 +6,7 @@ from routes.todo_routes import router
 from utils.db_store import ToDoDBStore
 
 
+
 class TestToDoListRoutes:
     @pytest.fixture(scope="class")
     def todo_list_routes(self):
@@ -16,9 +17,12 @@ class TestToDoListRoutes:
         return ToDoDBStore()
 
     @pytest.fixture(scope="class")
-    def todo_list_good(self):
+    def todo_list_good(self, request):
+        last_id = getattr(request.cls, "last_id", 0)
+        new_id = last_id + 1
+        request.cls.last_id = new_id
         return {
-            "id": 0,
+            "id": new_id,
             "title": "PytestFixtureGood",
             "description": "InstanceGood",
             "completed": True
@@ -48,4 +52,14 @@ class TestToDoListRoutes:
         print(f"\n\033[95mRouter: \033[92mCreate todo success: \033[96m{response.json()}\033[0m\n")
         assert response.status_code == 200
         assert response.json().get("oid") is not None
-        todo_list_routes.delete(f"/{response.json().get('oid')}")
+        todo_list_routes.request("DELETE", "/", json=todo_list_good)
+
+    def test_get_todo(self, todo_list_routes, todo_list_good):
+        todo_list_routes.request("DELETE", "/", json=todo_list_good)
+        todo_list_routes.post("/", json=todo_list_good)
+        response = todo_list_routes.get("/")
+        print(f"\n\033[95mRouter: \033[92mGet all todo success: \033[96m{response.json()}\033[0m\n")
+        assert response.status_code == 200
+        assert len(response.json()) == 1
+        assert any(item == todo_list_good for item in response.json())
+        todo_list_routes.request("DELETE", "/", json=todo_list_good)

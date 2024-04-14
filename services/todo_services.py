@@ -17,11 +17,11 @@ class ToDoServices:
     def get_all_todos(self):
         try:
             todos = self.db.get_all_documents("todo_list_db", "todo_list_collection")
-            result = []
+            results = []
             for todo in todos:
-                todo.append(ToDoModel(**todo))
+                results.append(ToDoModel(**todo))
             print(f"All Todos successfully retrieved: {todos}")
-            return result
+            return results
         except Exception as e:
             return {"error": str(e)}
 
