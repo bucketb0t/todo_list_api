@@ -9,8 +9,6 @@ router = APIRouter()
 todo_services = ToDoServices()
 
 
-
-
 async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
     """
     Define a route handler for handling HTTP POST requests at the root URL ("/") with a response model of Dict[str, Any].
@@ -71,14 +69,25 @@ async def get_todo_route() -> Union[List[ToDoModel], Dict[str, Any]]:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @router.put("/{oid}", response_model=Dict[str, Any])
-# async def update_todo_route(input_data: int, body_data: dict) -> Dict[str, Any]:
-#     try:
-#         if
-#
-#
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
+@router.put("/{input_data}", response_model=Dict[str, Any])
+async def update_todo_route(input_data: int, body_data: dict) -> Dict[str, Any]:
+    try:
+        if "id" in body_data and not isinstance(body_data.get("id"), int):
+            raise HTTPException(status_code=400, detail="Error! 'id' parameter is not a integer value instance")
+        if "title" in body_data and not isinstance(body_data.get("title"), str):
+            raise HTTPException(status_code=400, detail="Error! 'title' parameter is not a string value instance")
+        if "description" in body_data and not isinstance(body_data.get("description"), str):
+            raise HTTPException(status_code=400, detail="Error! 'description' parameter is not a string value instance")
+        if "completed" in body_data and not isinstance(body_data.get("completed"), bool):
+            raise HTTPException(status_code=400, detail="Error! 'completed' parameter is not a boolean value instance")
+
+        result = todo_services.update_todo_by_id(input_data, body_data)
+        if isinstance(result, dict) and result.get("error") is not None:
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.delete("/", response_model=Dict[str, Any])
