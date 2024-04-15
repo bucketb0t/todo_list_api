@@ -9,6 +9,7 @@ router = APIRouter()
 todo_services = ToDoServices()
 
 
+@router.post("/", response_model=Dict[str, Any])
 async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
     """
     Define a route handler for handling HTTP POST requests at the root URL ("/") with a response model of Dict[str, Any].
