@@ -83,7 +83,7 @@ class TestToDoListRoutes:
         assert "Method Not Allowed" in response.text
         todo_list_routes.delete("/")
 
-    def test_update_todo_route_good(self, todo_list_routes, todo_list_good, todo_list_update):
+    def test_update_todo_route_by_id_good(self, todo_list_routes, todo_list_good, todo_list_update):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.put(f"/{todo_list_good.get('id')}", json=todo_list_update)
@@ -92,7 +92,7 @@ class TestToDoListRoutes:
         assert response.status_code == 200
         assert response.json() == {"result": f"Documents updated: 1"}
 
-    def test_update_todo_route_bad(self, todo_list_routes, todo_list_bad, todo_list_update):
+    def test_update_todo_route_by_id_bad(self, todo_list_routes, todo_list_bad, todo_list_update):
         todo_list_routes.delete("/")
         with pytest.raises(HTTPException) as exc_info:
             todo_list_routes.post("/", json=todo_list_bad)

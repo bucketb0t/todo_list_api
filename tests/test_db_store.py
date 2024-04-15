@@ -42,29 +42,6 @@ class TestToDoDBStore:
 
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 
-    def test_get_all_documents(self, mongo_driver, todo_document_fix):
-        # Delete all documents in the collection
-        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
-
-        # Add all documents to the database
-        for document_fix in todo_document_fix:
-            result = mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
-
-        result = mongo_driver.get_all_documents("todo_list_db", "todo_list_collection")
-
-        for document_fix in todo_document_fix:
-            # Iterate over each document fix
-            found = False
-            for document in result:
-                # Iterate over each document in the result
-                if all(document[key] == value for key, value in document_fix.items()):
-                    # Check if the document matches the document_fix
-                    found = True
-                    break
-            assert found, f"Document matching {document_fix} not found in result"
-
-        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
-
     def test_get_document_by_id(self, mongo_driver, todo_document_fix):
         # Delete all documents in the collection
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
@@ -106,6 +83,29 @@ class TestToDoDBStore:
             # Compare each key-value pair in the expected document with the result
             for key, value in expected_document.items():
                 assert document[key] == value
+
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+    def test_get_all_documents(self, mongo_driver, todo_document_fix):
+        # Delete all documents in the collection
+        mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
+
+        # Add all documents to the database
+        for document_fix in todo_document_fix:
+            result = mongo_driver.add_document("todo_list_db", "todo_list_collection", document_fix)
+
+        result = mongo_driver.get_all_documents("todo_list_db", "todo_list_collection")
+
+        for document_fix in todo_document_fix:
+            # Iterate over each document fix
+            found = False
+            for document in result:
+                # Iterate over each document in the result
+                if all(document[key] == value for key, value in document_fix.items()):
+                    # Check if the document matches the document_fix
+                    found = True
+                    break
+            assert found, f"Document matching {document_fix} not found in result"
 
         mongo_driver.delete_all_documents("todo_list_db", "todo_list_collection", {})
 

@@ -14,17 +14,6 @@ class ToDoServices:
         except Exception as e:
             return {"error": str(e)}
 
-    def get_all_todos(self):
-        try:
-            todos = self.db.get_all_documents("todo_list_db", "todo_list_collection")
-            results = []
-            for todo in todos:
-                results.append(ToDoModel(**todo))
-            print(f"All Todos successfully retrieved: {todos}")
-            return results
-        except Exception as e:
-            return {"error": str(e)}
-
     def get_todo_by_id(self, todo_id: int):
         try:
             todo = self.db.get_document_by_id("todo_list_db", "todo_list_collection", todo_id)
@@ -42,6 +31,17 @@ class ToDoServices:
                 result.append(ToDoModel(**todo))
             print(f"All Todos successfully retrieved: {result}")
             return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    def get_all_todos(self):
+        try:
+            todos = self.db.get_all_documents("todo_list_db", "todo_list_collection")
+            results = []
+            for todo in todos:
+                results.append(ToDoModel(**todo))
+            print(f"All Todos successfully retrieved: {todos}")
+            return results
         except Exception as e:
             return {"error": str(e)}
 

@@ -71,7 +71,7 @@ async def get_todo_route() -> Union[List[ToDoModel], Dict[str, Any]]:
 
 
 @router.put("/{input_data}", response_model=Dict[str, Any])
-async def update_todo_route(input_data: int, body_data: dict) -> Dict[str, Any]:
+async def update_todo_route_by_id(input_data: int, body_data: dict) -> Dict[str, Any]:
     try:
         if "id" in body_data and not isinstance(body_data.get("id"), int):
             raise HTTPException(status_code=400, detail="Error! 'id' parameter is not a integer value instance")

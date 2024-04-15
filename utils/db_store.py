@@ -50,11 +50,6 @@ class ToDoDBStore:
         document['id'] = self.get_next_id(db_name, collection_name)
         return collection.insert_one(document)
 
-    def get_all_documents(self, db_name: str, collection_name: str) -> list:
-        db = self.client[db_name]
-        collection = db[collection_name]
-        return list(collection.find())
-
     def get_document_by_id(self, db_name: str, collection_name: str, task_id: int) -> Mapping[str, Any] | None:
         db = self.client[db_name]
         collection = db[collection_name]
@@ -64,6 +59,11 @@ class ToDoDBStore:
         db = self.client[db_name]
         collection = db[collection_name]
         return collection.find(query)
+
+    def get_all_documents(self, db_name: str, collection_name: str) -> list:
+        db = self.client[db_name]
+        collection = db[collection_name]
+        return list(collection.find())
 
     def update_document_by_id(self, db_name: str, collection_name: str, task_id: int, document: dict) -> UpdateResult:
         db = self.client[db_name]

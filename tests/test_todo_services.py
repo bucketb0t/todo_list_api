@@ -59,32 +59,6 @@ class TestToDoServices:
 
         todo_services_test.delete_all_todos()
 
-    def test_get_all_todos_good(self, todo_services_test, todo_item_good, todo_model_test):
-        todo_services_test.delete_all_todos()
-        todo_services_test.add_todo(todo_model_test)
-
-        todo_item_good["id"] = int(todo_model_test.id) + 1
-        result = todo_services_test.get_all_todos()
-
-        assert result is not None
-
-        assert len(result) == 1
-        for key, value in todo_item_good.items():
-            for todo in result:
-                assert getattr(todo, key) == value
-
-        todo_services_test.delete_all_todos()
-
-    def test_get_all_todos_bad(self, todo_services_test, todo_item_bad):
-        todo_services_test.delete_all_todos()
-        todo_services_test.add_todo(todo_item_bad)
-        result = todo_services_test.get_all_todos()
-
-        for todo in result:
-            assert result[todo].get("error") is not None
-
-        todo_services_test.delete_all_todos()
-
     def test_get_todo_by_id(self, todo_services_test, todo_model_test, todo_item_good):
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_model_test)
@@ -150,6 +124,32 @@ class TestToDoServices:
         assert result is not None
         for todo_item in result:
             assert todo_item.get("error") is not None
+
+        todo_services_test.delete_all_todos()
+
+    def test_get_all_todos_good(self, todo_services_test, todo_item_good, todo_model_test):
+        todo_services_test.delete_all_todos()
+        todo_services_test.add_todo(todo_model_test)
+
+        todo_item_good["id"] = int(todo_model_test.id) + 1
+        result = todo_services_test.get_all_todos()
+
+        assert result is not None
+
+        assert len(result) == 1
+        for key, value in todo_item_good.items():
+            for todo in result:
+                assert getattr(todo, key) == value
+
+        todo_services_test.delete_all_todos()
+
+    def test_get_all_todos_bad(self, todo_services_test, todo_item_bad):
+        todo_services_test.delete_all_todos()
+        todo_services_test.add_todo(todo_item_bad)
+        result = todo_services_test.get_all_todos()
+
+        for todo in result:
+            assert result[todo].get("error") is not None
 
         todo_services_test.delete_all_todos()
 
