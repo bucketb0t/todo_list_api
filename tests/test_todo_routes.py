@@ -100,3 +100,14 @@ class TestToDoListRoutes:
         assert exc_info.value.status_code == 400
         assert "id: Input should be a valid integer" in exc_info.value.detail
         todo_list_routes.delete("/")
+
+    def test_delete_todo_route_by_id_good(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+
+        response = todo_list_routes.delete(f"/{todo_list_good['id']}")
+
+        assert response.status_code == 200
+        assert response.json() == {"result": "Documents deleted: 1"}
+
+        todo_list_routes.delete("/")

@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Union
 from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError, parse_obj_as
 
@@ -89,6 +89,21 @@ async def update_todo_route(input_data: int, body_data: dict) -> Dict[str, Any]:
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/{input_data}", response_model=Dict[str, Any])
+async def delete_todo_route_by_id(input_data: int) -> Dict[str, Any]:
+    try:
+        if not isinstance(input_data, int):
+            raise HTTPException(status_code=400, detail="Error! 'id' parameter is not an integer value instance")
+
+        result = todo_services.delete_todo_by_id(input_data)
+
+        if isinstance(result, dict) and result.get("error") is not None:
+            raise HTTPException(status_code=400, detail=result.get("error"))
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/", response_model=Dict[str, Any])
