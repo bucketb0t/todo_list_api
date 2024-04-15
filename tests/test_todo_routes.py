@@ -49,6 +49,7 @@ class TestToDoListRoutes:
     def test_create_todo_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         response = todo_list_routes.post("/", json=todo_list_good)
+
         print(f"\n\033[95mRouter: \033[92mCreate todo success: \033[96m{response.json()}\033[0m\n")
         assert response.status_code == 200
         assert response.json().get("oid") is not None
@@ -56,14 +57,14 @@ class TestToDoListRoutes:
 
     def test_create_todo_bad(self, todo_list_routes, todo_list_bad):
         todo_list_routes.delete("/")
-
         with pytest.raises(HTTPException) as exc_info:
             response = todo_list_routes.post("/", json=todo_list_bad)
+
             assert exc_info.value.status_code == 400
             assert response.json().get("error") is not None
         todo_list_routes.delete("/")
 
-    def test_get_todo(self, todo_list_routes, todo_list_good):
+    def test_get_todo_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.get("/")
@@ -73,31 +74,29 @@ class TestToDoListRoutes:
         assert any(item == todo_list_good for item in response.json())
         todo_list_routes.delete("/")
 
-    def test_get_todo_bad(self, todo_list_routes, todo_list_bad):
-        # Clean up any existing todos
+    def test_get_todo_bad(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
-        todo_list_routes.post("/", json=todo_list_bad)
+        todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.get("/non_existent_route")
-        assert response.status_code is not None
+
+        assert response.status_code == 405
+        assert "Method Not Allowed" in response.text
         todo_list_routes.delete("/")
 
     def test_update_todo_route_good(self, todo_list_routes, todo_list_good, todo_list_update):
         todo_list_routes.delete("/")
-        response = todo_list_routes.post("/", json=todo_list_good)
+        todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.put(f"/{todo_list_good.get('id')}", json=todo_list_update)
+
         print(f"\n\033[95mRouter: \033[92mUpdate todo success: \033[96m{response.json()}\033[0m\n")
         assert response.status_code == 200
         assert response.json() == {"result": f"Documents updated: 1"}
 
-
     def test_update_todo_route_bad(self, todo_list_routes, todo_list_bad, todo_list_update):
         todo_list_routes.delete("/")
-        todo_list_routes.post("/", json=todo_list_bad)
+        with pytest.raises(HTTPException) as exc_info:
+            todo_list_routes.post("/", json=todo_list_bad)
 
-        response = todo_list_routes.put(f"/non_existent_route/{todo_list_bad['id']}", json=todo_list_update)
-
-        assert response.status_code == 404
-        with pytest.raises(json.JSONDecodeError):
-            assert response.json().get("error") is not None
-
+        assert exc_info.value.status_code == 400
+        assert "id: Input should be a valid integer" in exc_info.value.detail
         todo_list_routes.delete("/")
