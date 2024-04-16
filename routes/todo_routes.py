@@ -92,18 +92,28 @@ async def update_todo_route_by_id(input_data: int, body_data: dict) -> Dict[str,
 
 
 @router.delete("/{input_data}", response_model=Dict[str, Any])
-async def delete_todo_route_by_id(input_data: int) -> Dict[str, Any]:
+async def delete_todo_route_by_id(input_data: Union[int, str]) -> Dict[str, Any]:
     try:
-        if not isinstance(input_data, int):
-            raise HTTPException(status_code=400, detail="Error! 'id' parameter is not an integer value instance")
+        input_id = int(input_data)  # Ensure the ID is an integer
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Error! 'id' parameter is not an integer value instance")
 
-        result = todo_services.delete_todo_by_id(input_data)
+    todos = todo_services.get_all_todos()
 
-        if isinstance(result, dict) and result.get("error") is not None:
-            raise HTTPException(status_code=400, detail=result.get("error"))
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # Find the index of the todo item with the provided ID
+    index_to_delete = None
+    for i, todo in enumerate(todos):
+        if todo.id == input_id:
+            index_to_delete = i
+            break
+
+    if index_to_delete is None:
+        raise HTTPException(status_code=404, detail=f"Todo with ID {input_id} not found.")
+
+    # Delete the todo item
+    deleted_todo = todos.pop(index_to_delete)
+
+    return {"message": f"Todo with ID {input_id} deleted successfully.", "deleted_todo": deleted_todo}
 
 
 @router.delete("/", response_model=Dict[str, Any])

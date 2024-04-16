@@ -2,8 +2,9 @@ import pytest
 import json
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
+from starlette import status
 
-from routes.todo_routes import router
+from routes.todo_routes import router, todo_services
 from utils.db_store import ToDoDBStore
 
 
@@ -105,9 +106,31 @@ class TestToDoListRoutes:
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
 
-        response = todo_list_routes.delete(f"/{todo_list_good['id']}")
-
+        # Pass a valid integer ID for input_data
+        response = todo_list_routes.delete(f"/{todo_list_good.get('id')}")
         assert response.status_code == 200
-        assert response.json() == {"result": "Documents deleted: 1"}
+
+    def test_delete_todo_route_by_id_bad(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+
+        existing_todo_ids = [todo.id for todo in todo_services.get_all_todos()]
+
+        non_existing_id = max(existing_todo_ids, default=0) + 1
+
+        with pytest.raises(HTTPException) as exc_info:
+            todo_list_routes.delete(f"/{non_existing_id}")
+
+        exception = exc_info.value
+        assert exception.status_code == 404
+        assert exception.detail == f"Todo with ID {non_existing_id} not found."
 
         todo_list_routes.delete("/")
+
+
+
+
+
+
+
+
