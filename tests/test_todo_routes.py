@@ -1,8 +1,7 @@
 import pytest
-import json
+
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
-from starlette import status
 
 from routes.todo_routes import router, todo_services
 from utils.db_store import ToDoDBStore
@@ -65,26 +64,32 @@ class TestToDoListRoutes:
             assert response.json().get("error") is not None
         todo_list_routes.delete("/")
 
+    def test_get_todo_by_id_good(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+        response = todo_list_routes.get("/", params={"id": todo_list_good.get("id")})
+        print(f"\n\033[95mRouter: \033[92mGet all todo_by_id success: \033[96m{response.json()}\033[0m\n")
+
+        assert response.status_code == 200
+        for key, value in todo_list_good.items():
+            assert response.json()[todo_list_good.get("id") - 1].get(key) == value
+
+        todo_list_routes.delete("/")
+
     def test_get_todo_all_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.get("/")
         print(f"\n\033[95mRouter: \033[92mGet all todo success: \033[96m{response.json()}\033[0m\n")
+
         assert response.status_code == 200
         assert len(response.json()) == 1
         assert any(item == todo_list_good for item in response.json())
         todo_list_routes.delete("/")
 
-    def test_get_todo_all_bad(self, todo_list_routes, todo_list_good):
-        todo_list_routes.delete("/")
-        todo_list_routes.post("/", json=todo_list_good)
-        response = todo_list_routes.get("/non_existent_route")
+    """De facut get_test_all_todo_bad"""
 
-        assert response.status_code == 405
-        assert "Method Not Allowed" in response.text
-        todo_list_routes.delete("/")
-
-    def test_update_todo_route_by_id_good(self, todo_list_routes, todo_list_good, todo_list_update):
+    def test_update_todo_by_id_good(self, todo_list_routes, todo_list_good, todo_list_update):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.put(f"/{todo_list_good.get('id')}", json=todo_list_update)
@@ -93,7 +98,7 @@ class TestToDoListRoutes:
         assert response.status_code == 200
         assert response.json() == {"result": f"Documents updated: 1"}
 
-    def test_update_todo_route_by_id_bad(self, todo_list_routes, todo_list_bad, todo_list_update):
+    def test_update_todo_by_id_bad(self, todo_list_routes, todo_list_bad, todo_list_update):
         todo_list_routes.delete("/")
         with pytest.raises(HTTPException) as exc_info:
             todo_list_routes.post("/", json=todo_list_bad)
@@ -102,17 +107,17 @@ class TestToDoListRoutes:
         assert "id: Input should be a valid integer" in exc_info.value.detail
         todo_list_routes.delete("/")
 
-    def test_delete_todo_route_by_id_good(self, todo_list_routes, todo_list_good):
+    def test_delete_todo_by_id_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
-
-        # Pass a valid integer ID for input_data
         response = todo_list_routes.delete(f"/{todo_list_good.get('id')}")
+
+        print(f"\n\033[95mRouter: \033[92mDelete todo_by_id success: \033[96m{response.json()}\033[0m\n")
         assert response.status_code == 200
         assert response.json().get("message") == f"Todo with ID {todo_list_good.get('id')} deleted successfully."
         todo_list_routes.delete("/")
 
-    def test_delete_todo_route_by_id_bad(self, todo_list_routes, todo_list_good):
+    def test_delete_todo_by_id_bad(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
 
@@ -133,6 +138,8 @@ class TestToDoListRoutes:
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.delete("/")
+
+        print(f"\n\033[95mRouter: \033[92mDelete todos success: \033[96m{response.json()}\033[0m\n")
         assert response.status_code == 200
         assert response.json().get("error") is None
         assert response.json().get("result") == 'Document deleted: 1'

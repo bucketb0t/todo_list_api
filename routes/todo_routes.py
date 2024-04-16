@@ -58,6 +58,29 @@ async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=error_detail)
 
 
+@router.get("/{todo_id}", response_model=Dict[str, Any])
+async def get_todo_route_by_id(id: int) -> Dict[str, Any]:
+    try:
+        input_id = int(id)  # Ensure the ID is an integer
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Error! 'id' parameter is not an integer value instance")
+
+    todos = todo_services.get_all_todos()
+
+    # Find the index of the todo item with the provided ID
+    index_to_get = None
+    for i, todo in enumerate(todos):
+        if todo.id == input_id:
+            index_to_get = i
+            break
+
+    if index_to_get is None:
+        raise HTTPException(status_code=404, detail=f"Todo with ID {input_id} not found.")
+    update_todo = todo_services.get_todo_by_id(index_to_get)
+
+    return {"message": f"Todo with ID {input_id} retrieved successfully.", "update_todo": update_todo}
+
+
 @router.get("/", response_model=Union[List[ToDoModel], Dict[str, Any]])
 async def get_todo_route_all() -> Union[List[ToDoModel], Dict[str, Any]]:
     try:

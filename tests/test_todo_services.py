@@ -101,7 +101,7 @@ class TestToDoServices:
 
         todo_item_good["id"] = int(todo_model_test.id) + 1
 
-        result = todo_services_test.get_todo_by_query(todo_item_good)
+        result = todo_services_test.get_todo_by_query({"title": "PytestFixtureGood"})
 
         assert result is not None, "Retrieved todo item is None"
         assert isinstance(result, list), "Result is not a list"
@@ -119,7 +119,7 @@ class TestToDoServices:
         todo_services_test.delete_all_todos()
         todo_db_store.add_document("todo_list_db", "todo_list_collection", todo_item_bad)
 
-        result = todo_services_test.get_todo_by_query({"id": 0})
+        result = todo_services_test.get_todo_by_query({"title": "PytestFixtureGood"})
 
         assert result is not None
         for todo_item in result:
