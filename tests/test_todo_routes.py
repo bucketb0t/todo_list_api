@@ -65,7 +65,7 @@ class TestToDoListRoutes:
             assert response.json().get("error") is not None
         todo_list_routes.delete("/")
 
-    def test_get_todo_good(self, todo_list_routes, todo_list_good):
+    def test_get_todo_all_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.get("/")
@@ -75,7 +75,7 @@ class TestToDoListRoutes:
         assert any(item == todo_list_good for item in response.json())
         todo_list_routes.delete("/")
 
-    def test_get_todo_bad(self, todo_list_routes, todo_list_good):
+    def test_get_todo_all_bad(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
         response = todo_list_routes.get("/non_existent_route")
@@ -109,6 +109,8 @@ class TestToDoListRoutes:
         # Pass a valid integer ID for input_data
         response = todo_list_routes.delete(f"/{todo_list_good.get('id')}")
         assert response.status_code == 200
+        assert response.json().get("message") == f"Todo with ID {todo_list_good.get('id')} deleted successfully."
+        todo_list_routes.delete("/")
 
     def test_delete_todo_route_by_id_bad(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
@@ -127,10 +129,19 @@ class TestToDoListRoutes:
 
         todo_list_routes.delete("/")
 
+    def test_delete_todo_all_good(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+        response = todo_list_routes.delete("/")
+        assert response.status_code == 200
+        assert response.json().get("error") is None
+        assert response.json().get("result") == 'Document deleted: 1'
 
-
-
-
-
-
-
+    def test_delete_todo_all_bad(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+        with pytest.raises(HTTPException) as exc_info:
+            todo_list_routes.delete("/non_existent_route")
+            assert exc_info.value.status_code == 404
+            assert exc_info.value.detail == "Document not found."
+        todo_list_routes.delete("/")

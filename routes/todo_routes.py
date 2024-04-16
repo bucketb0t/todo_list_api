@@ -59,7 +59,7 @@ async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
 
 
 @router.get("/", response_model=Union[List[ToDoModel], Dict[str, Any]])
-async def get_todo_route() -> Union[List[ToDoModel], Dict[str, Any]]:
+async def get_todo_route_all() -> Union[List[ToDoModel], Dict[str, Any]]:
     try:
         results = todo_services.get_all_todos()
         if isinstance(results, list) and any(isinstance(result, dict) and result.get("error") for result in results):
@@ -117,7 +117,7 @@ async def delete_todo_route_by_id(input_data: Union[int, str]) -> Dict[str, Any]
 
 
 @router.delete("/", response_model=Dict[str, Any])
-async def delete_todo_route() -> Dict[str, Any]:
+async def delete_todo_route_all() -> Dict[str, Any]:
     try:
         result = todo_services.delete_all_todos()
         if isinstance(result, dict) and result.get("error") is not None:
