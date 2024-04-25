@@ -85,7 +85,7 @@ async def get_todo_route_by_id(id: int) -> Dict[str, Any]:
 async def get_todo_route_all() -> Union[List[ToDoModel], Dict[str, Any]]:
     try:
         results = todo_services.get_all_todos()
-        if isinstance(results, list) and any(isinstance(result, dict) and result.get("error") for result in results):
+        if any(isinstance(result, dict) and result.get("error") for result in results):
             error_messages = ", ".join(result["error"] for result in results if result.get("error"))
             raise HTTPException(status_code=400, detail=error_messages)
         return results
@@ -143,10 +143,8 @@ async def delete_todo_route_by_id(input_data: Union[int, str]) -> Dict[str, Any]
 async def delete_todo_route_all() -> Dict[str, Any]:
     try:
         result = todo_services.delete_all_todos()
-        if isinstance(result, dict) and result.get("error") is not None:
+        if result.get("error") is not None:
             raise HTTPException(status_code=400, detail=result.get("error"))
         return result
-    except ValidationError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

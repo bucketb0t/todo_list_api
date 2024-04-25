@@ -76,6 +76,18 @@ class TestToDoListRoutes:
 
         todo_list_routes.delete("/")
 
+    def test_get_todo_by_id_bad(self, todo_list_routes, todo_list_good):
+        todo_list_routes.delete("/")
+        todo_list_routes.post("/", json=todo_list_good)
+
+        bad_id = 999
+
+        with pytest.raises(HTTPException) as exc_info:
+            todo_list_routes.get(f"/{bad_id}", params={"id": bad_id})
+
+        assert exc_info.value.status_code == 404
+        assert exc_info.value.detail == f"Todo with ID {bad_id} not found."
+
     def test_get_todo_all_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
