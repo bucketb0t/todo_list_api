@@ -77,6 +77,31 @@ async def get_todo_route_by_id(id: int) -> Dict[str, Any]:
     return {"message": f"Todo with ID {id} retrieved successfully.", "update_todo": retrieved_todo}
 
 
+@router.get("/query", response_model=Union[List[ToDoModel], Dict[str, Any]])
+async def get_todo_route_by_query(query: dict) -> Union[List[ToDoModel], Dict[str, Any]]:
+    if not query:
+        raise HTTPException(status_code=400, detail="No query parameters provided")
+
+    try:
+        todos_to_get = []
+
+        for todo in todo_services.get_all_todos():
+            if all(
+                    hasattr(todo, key) and getattr(todo, key) == value
+                    for key, value in query.items()
+            ):
+                todos_to_get.append(todo)
+
+        if not todos_to_get:
+            return {"message": f"No todos found matching query {query}", "retrieved_todo": []}
+
+        return {"message": f"Todos with query {query} retrieved successfully.",
+                "retrieved_todo": [todo.dict() for todo in todos_to_get]}
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Error! 'query' parameter is not valid: {query}")
+
+
 @router.get("/", response_model=Union[List[ToDoModel], Dict[str, Any]])
 async def get_todo_route_all() -> Union[List[ToDoModel], Dict[str, Any]]:
     try:
