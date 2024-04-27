@@ -99,7 +99,18 @@ class TestToDoListRoutes:
         assert any(item == todo_list_good for item in response.json())
         todo_list_routes.delete("/")
 
-    """De facut get_test_all_todo_bad"""
+    def test_get_todo_all_bad(self, todo_list_routes, monkeypatch):
+        # Mocking the todo_services.get_all_todos method to raise an exception
+        def mock_get_all_todos():
+            raise Exception("Database connection error occurred")
+
+        monkeypatch.setattr(todo_services, "get_all_todos", mock_get_all_todos)
+
+        with pytest.raises(HTTPException) as exc_info:
+            todo_list_routes.get("/")
+
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.detail == "Database connection error occurred"
 
     def test_update_todo_by_id_good(self, todo_list_routes, todo_list_good, todo_list_update):
         todo_list_routes.delete("/")
@@ -133,7 +144,7 @@ class TestToDoListRoutes:
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)
 
-        existing_todo_ids = [todo.id for todo in todo_services.get_all_todos()]
+        existing_todo_ids = [todo.get("id") for todo in todo_list_routes.get("/").json()]
 
         non_existing_id = max(existing_todo_ids, default=0) + 1
 

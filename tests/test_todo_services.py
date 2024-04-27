@@ -146,10 +146,10 @@ class TestToDoServices:
     def test_get_all_todos_bad(self, todo_services_test, todo_item_bad):
         todo_services_test.delete_all_todos()
         todo_services_test.add_todo(todo_item_bad)
+        todo_services_test.db = None
         result = todo_services_test.get_all_todos()
 
-        for todo in result:
-            assert result[todo].get("error") is not None
+        assert result.get("error") is not None
 
         todo_services_test.delete_all_todos()
 

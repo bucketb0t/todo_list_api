@@ -85,8 +85,10 @@ async def get_todo_route_by_id(id: int) -> Dict[str, Any]:
 async def get_todo_route_all() -> Union[List[ToDoModel], Dict[str, Any]]:
     try:
         results = todo_services.get_all_todos()
+        if not results:
+            raise HTTPException(status_code=404, detail="No todos found")
         if any(isinstance(result, dict) and result.get("error") for result in results):
-            error_messages = ", ".join(result["error"] for result in results if result.get("error"))
+            error_messages = ", ".join(result.get("error") for result in results)
             raise HTTPException(status_code=400, detail=error_messages)
         return results
     except Exception as e:
@@ -143,7 +145,7 @@ async def delete_todo_route_by_id(input_data: Union[int, str]) -> Dict[str, Any]
 async def delete_todo_route_all() -> Dict[str, Any]:
     try:
         result = todo_services.delete_all_todos()
-        if result.get("error") is not None:
+        if isinstance(result, dict) and result.get("error") is not None:
             raise HTTPException(status_code=400, detail=result.get("error"))
         return result
     except Exception as e:
