@@ -88,34 +88,6 @@ class TestToDoListRoutes:
         assert exc_info.value.status_code == 404
         assert exc_info.value.detail == f"Todo with ID {bad_id} not found."
 
-    def test_get_todo_by_query_good(self, todo_list_routes, todo_list_good):
-        todo_list_routes.delete("/")
-        todo_list_routes.post("/", json=todo_list_good)
-
-        query_params = {"completed": True}
-        response = todo_list_routes.get("/", params=query_params)
-        print(f"\n\033[95mRouter: \033[92mGet all todo_by_query success: \033[96m{response.json()}\033[0m\n")
-
-        assert response.status_code == 200
-        assert len(response.json()) > 0
-
-    def test_get_todo_by_query_bad(self, todo_list_routes, todo_list_good):
-        todo_list_routes.delete("/")
-        todo_list_routes.post("/", json=todo_list_good)
-
-        # Test for a query that doesn't match any todos
-        query_bad = {"bad": True}
-        response = todo_list_routes.get("/query", params=query_bad)
-
-        try:
-            assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
-            response_json = response.json()
-            assert "message" in response_json
-            assert "retrieved_todo" in response_json
-            assert len(response_json["retrieved_todo"]) == 0
-        except AssertionError as e:
-            raise AssertionError(f"Test failed: {e}")
-
     def test_get_todo_all_good(self, todo_list_routes, todo_list_good):
         todo_list_routes.delete("/")
         todo_list_routes.post("/", json=todo_list_good)

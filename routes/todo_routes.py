@@ -24,37 +24,17 @@ async def create_todo_route(todo_data: dict) -> Dict[str, Any]:
     - HTTPException: If an error occurs during parsing or processing, an HTTPException with status code 400 and the error detail will be raised.
     """
     try:
-        # Attempt to parse the todo_data dictionary into an instance of the ToDoModel class
         todo_model = parse_obj_as(ToDoModel, todo_data)
-
-        # Call a function to add the todo_model instance to the database or perform other actions
         result = todo_services.add_todo(todo_model)
-
-        # Convert the value associated with the key "oid" in the result dictionary to a string
         result["oid"] = str(result["oid"])
-
-        # Check if the result is a dictionary and if it contains a key "error" with a non-None value
         if isinstance(result, dict) and result.get("error") is not None:
-            # If an error is detected, raise an HTTPException with a status code of 400 and the error detail
             raise HTTPException(status_code=400, detail=result.get("error"))
-
-        # If no errors occur during processing, return the result dictionary
         return result
-
-    # Catch any ValidationError exceptions that occur during parsing or processing
     except ValidationError as e:
-        # Initialize an empty list to store individual error messages
         error_messages = []
-
-        # Iterate over the list of validation errors contained in the ValidationError object
         for error in e.errors():
-            # Construct a string for each error message and append it to the error_messages list
             error_messages.append(f"{error['loc'][0]}: {error['msg']}")
-
-        # Join all error messages into a single string separated by newline characters
         error_detail = "\n".join(error_messages)
-
-        # Raise an HTTPException with a status code of 400 and the concatenated error detail
         raise HTTPException(status_code=400, detail=error_detail)
 
 
@@ -66,40 +46,15 @@ async def get_todo_route_by_id(id: int) -> Dict[str, Any]:
             if todo.id == id:
                 index_to_get = i
                 break
-
-        retrieved_todo = todo_services.get_todo_by_id(index_to_get)
         if index_to_get is None:
             raise HTTPException(status_code=404, detail=f"Todo with ID {id} not found.")
+
+        retrieved_todo = todo_services.get_todo_by_id(id)
 
     except ValueError:
         raise HTTPException(status_code=400, detail="Error! 'id' parameter is not an integer value instance")
 
     return {"message": f"Todo with ID {id} retrieved successfully.", "update_todo": retrieved_todo}
-
-
-@router.get("/query", response_model=Union[List[ToDoModel], Dict[str, Any]])
-async def get_todo_route_by_query(query: dict) -> Union[List[ToDoModel], Dict[str, Any]]:
-    if not query:
-        raise HTTPException(status_code=400, detail="No query parameters provided")
-
-    try:
-        todos_to_get = []
-
-        for todo in todo_services.get_all_todos():
-            if all(
-                    hasattr(todo, key) and getattr(todo, key) == value
-                    for key, value in query.items()
-            ):
-                todos_to_get.append(todo)
-
-        if not todos_to_get:
-            return {"message": f"No todos found matching query {query}", "retrieved_todo": []}
-
-        return {"message": f"Todos with query {query} retrieved successfully.",
-                "retrieved_todo": [todo.dict() for todo in todos_to_get]}
-
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Error! 'query' parameter is not valid: {query}")
 
 
 @router.get("/", response_model=Union[List[ToDoModel], Dict[str, Any]])
